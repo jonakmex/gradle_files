@@ -1,0 +1,60 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '2.7.5'
+    id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+    id 'maven-publish'
+}
+
+group = 'com.jonakmex'
+version = '0.0.1-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    maven {
+        url System.env.CODEARTIFACT_URL
+        credentials {
+            username "aws"
+            password System.env.CODEARTIFACT_AUTH_TOKEN
+        }
+    }
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-webflux:2.7.5'
+    annotationProcessor 'org.projectlombok:lombok:1.18.34'
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.34'
+
+    testImplementation(platform('org.junit:junit-bom:5.10.0'))
+    testImplementation('org.junit.jupiter:junit-jupiter')
+    testImplementation group: 'io.projectreactor', name: 'reactor-test', version: '3.1.0.RELEASE'
+
+}
+
+bootJar {
+    enabled = false
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+publishing{
+    publications{
+        maven (MavenPublication){
+            artifactId = rootProject.name
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url System.env.CODEARTIFACT_URL
+            credentials {
+                username "aws"
+                password System.env.CODEARTIFACT_AUTH_TOKEN
+            }
+        }
+    }
+}
